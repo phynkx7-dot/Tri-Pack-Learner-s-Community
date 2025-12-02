@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tri-Pack Learner's Hub</title>
+    
+    <!-- Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        deepGraphite: '#121217',
+                        mutedMidnight: '#1F2430',
+                        offWhite: '#EAEAEA',
+                        electricBlue: '#00BCD4',
+                        tealGlow: '#00CC99',
+                        limeGreen: '#B3FF00',
+                        subtleGray: '#4A4E5A',
+                    },
+                    boxShadow: {
+                        'soft-dark': '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
+                        'glow-blue': '0 0 10px rgba(0, 188, 212, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Scrollbar Styling for Dark Theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121217; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4A4E5A; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00BCD4; 
+        }
+
+        /* Splash Screen Animation */
+        @keyframes ignite {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-ignite {
+            animation: ignite 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* Fade In Transition */
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-in.active {
+            opacity: 1;
+        }
+
+        /* Chart Container Constraint Class */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 250px;
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        .tri-pack-logo {
+            display: flex;
+            align-items: center;
+            line-height: 1;
+        }
+        .tri-pack-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #121217;
+            background: linear-gradient(135deg, #00BCD4, #00CC99);
+        }
+        .tri-pack-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.05em;
+        }
+    </style>
+    
+    <!-- Chosen Palette: Corporate Dark (#121217, #1F2430, #00BCD4, #00CC99) -->
+    <!-- Application Structure Plan: Sidebar navigation (Desktop) / Bottom Nav (Mobile) + Main Content Area. Thematic views (Dashboard, Analytics, Community, Profile) prioritized for logical L&D user flow and exploration. -->
+    <!-- Visualization & Content Choices: Dashboard Activity: Doughnut Chart (Chart.js) -> Time distribution. Analytics Trends: Line Chart (Chart.js) -> Weekly learning streak. Profile: Radar Chart (Chart.js) -> Skills map. No SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-deepGraphite text-offWhite overflow-hidden h-screen flex flex-col md:flex-row">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="fixed inset-0 z-50 bg-deepGraphite flex items-center justify-center transition-opacity duration-700">
+        <div class="text-center animate-ignite">
+            <div class="tri-pack-logo justify-center mb-4">
+                <div class="tri-pack-icon w-12 h-12 text-2xl">TP</div>
+            </div>
+            <p class="text-offWhite tracking-widest text-sm uppercase opacity-70">Tri-Pack Learner's Hub</p>
+        </div>
+    </div>
+
+    <!-- SIDEBAR NAVIGATION (Desktop) -->
+    <nav class="hidden md:flex flex-col w-64 bg-mutedMidnight border-r border-subtleGray h-full p-6 shadow-soft-dark z-20">
+        <!-- Logo Area -->
+        <div class="mb-10 tri-pack-logo">
+            <div class="tri-pack-icon mr-3">TP</div>
+            <span class="tri-pack-text">Tri-Pack</span>
+        </div>
+
+        <div class="space-y-2 flex-grow">
+            <button onclick="router('dashboard')" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-subtleGray group active-nav" data-target="dashboard">
+                <span class="text-xl group-hover:text-electricBlue transition-colors">⊞</span>
+                <span class="font-medium group-hover:text-offWhite">Dashboard</span>
+            </button>
+            <button onclick="router('analytics')" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-subtleGray group" data-target="analytics">
+                <span class="text-xl group-hover:text-limeGreen transition-colors">📈</span>
+                <span class="font-medium group-hover:text-offWhite">Analytics</span>
+            </button>
+            <button onclick="router('community')" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-subtleGray group" data-target="community">
+                <span class="text-xl group-hover:text-tealGlow transition-colors">💬</span>
+                <span class="font-medium group-hover:text-offWhite">Community</span>
+            </button>
+            <button onclick="router('profile')" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-subtleGray group" data-target="profile">
+                <span class="text-xl group-hover:text-electricBlue transition-colors">👤</span>
+                <span class="font-medium group-hover:text-offWhite">Profile</span>
+            </button>
+            <button onclick="router('librarian')" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-subtleGray group" data-target="librarian">
+                <span class="text-xl group-hover:text-limeGreen transition-colors">🤖</span>
+                <span class="font-medium group-hover:text-offWhite">Librarian AI</span>
+            </button>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-subtleGray">
+            <div class="flex items-center space-x-3 p-2 bg-deepGraphite rounded-xl border border-subtleGray">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-electricBlue to-limeGreen p-0.5">
+                    <div class="w-full h-full rounded-full bg-mutedMidnight flex items-center justify-center text-xs font-bold">JD</div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold">Jane Doe</p>
+                    <p class="text-xs text-tealGlow">Lvl 12 • Strategist</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow h-full overflow-y-auto relative scroll-smooth p-4 md:p-8" id="main-scroll">
+        
+        <!-- HEADER (Mobile/Tablet Only) -->
+        <header class="md:hidden flex justify-between items-center mb-6">
+            <!-- Logo Area -->
+            <div class="tri-pack-logo">
+                <div class="tri-pack-icon w-6 h-6 mr-2 text-sm">TP</div>
+                <span class="font-bold text-lg">Hub</span>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-subtleGray flex items-center justify-center">JD</div>
+        </header>
+
+        <!-- VIEW: DASHBOARD -->
+        <div id="view-dashboard" class="view-section fade-in active space-y-8 pb-20">
+            <!-- Intro -->
+            <div class="flex justify-between items-end">
+                <div>
+                    <div class="tri-pack-logo mb-2">
+                        <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                        <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-offWhite mb-1">Good Morning, Jane</h1>
+                    <p class="text-subtleGray text-sm md:text-base">Ready to ignite your learning journey today?</p>
+                </div>
+                <div class="hidden md:flex space-x-4">
+                    <div class="flex items-center space-x-2 bg-mutedMidnight px-3 py-1.5 rounded-lg border border-subtleGray">
+                        <span class="text-limeGreen">🔥</span>
+                        <span class="font-bold">12 Day Streak</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Continue Learning -->
+            <section>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold border-l-4 border-electricBlue pl-3">Continue Learning</h2>
+                    <button class="text-xs text-electricBlue hover:text-tealGlow uppercase tracking-wider font-semibold">View All</button>
+                </div>
+                <!-- Horizontal Scroll Container -->
+                <div class="flex space-x-4 overflow-x-auto pb-4 snap-x">
+                    <!-- Card 1 -->
+                    <div onclick="startContentPlayback('hr-frameworks')" data-content-id="hr-frameworks" class="min-w-[280px] md:min-w-[320px] bg-mutedMidnight p-5 rounded-2xl shadow-soft-dark border border-subtleGray hover:border-electricBlue transition-colors cursor-pointer group snap-center">
+                        <div class="flex justify-between items-start mb-8">
+                            <span class="bg-electricBlue/20 text-electricBlue text-xs px-2 py-1 rounded font-bold uppercase">Video</span>
+                            <span class="text-subtleGray text-xs">12m left</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 group-hover:text-electricBlue transition-colors">Strategic HR Frameworks</h3>
+                        <p class="text-sm text-gray-400 mb-4">Module 3: Aligning Talent with Business Goals</p>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-deepGraphite h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-electricBlue h-full rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div onclick="startContentPlayback('servant-leadership')" data-content-id="servant-leadership" class="min-w-[280px] md:min-w-[320px] bg-mutedMidnight p-5 rounded-2xl shadow-soft-dark border border-subtleGray hover:border-tealGlow transition-colors cursor-pointer group snap-center">
+                        <div class="flex justify-between items-start mb-8">
+                            <span class="bg-tealGlow/20 text-tealGlow text-xs px-2 py-1 rounded font-bold uppercase">Course</span>
+                            <span class="text-subtleGray text-xs">2 Modules left</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 group-hover:text-tealGlow transition-colors">Servant Leadership 101</h3>
+                        <p class="text-sm text-gray-400 mb-4">Unit 4: Empathy in Action</p>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-deepGraphite h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-tealGlow h-full rounded-full" style="width: 40%"></div>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div onclick="startContentPlayback('future-of-work')" data-content-id="future-of-work" class="min-w-[280px] md:min-w-[320px] bg-mutedMidnight p-5 rounded-2xl shadow-soft-dark border border-subtleGray hover:border-limeGreen transition-colors cursor-pointer group snap-center">
+                        <div class="flex justify-between items-start mb-8">
+                            <span class="bg-limeGreen/20 text-limeGreen text-xs px-2 py-1 rounded font-bold uppercase">Podcast</span>
+                            <span class="text-subtleGray text-xs">5m left</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2 group-hover:text-limeGreen transition-colors">Future of Work</h3>
+                        <p class="text-sm text-gray-400 mb-4">Ep 42: AI in L&D</p>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-deepGraphite h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-limeGreen h-full rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section: AI Recommendation Strips -->
+            <section id="recommendation-strips" class="space-y-6">
+                <!-- Content injected by JS -->
+            </section>
+
+            <!-- Grid: Activity & Quick Access -->
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Quick Access Tiles (2/3 width) -->
+                <div class="lg:col-span-2 space-y-4">
+                    <h2 class="text-xl font-bold border-l-4 border-tealGlow pl-3">Explore Hub</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <!-- Tiles -->
+                        <div class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-electricBlue group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">🎥</div>
+                            <span class="text-sm font-semibold">Videos</span>
+                        </div>
+                        <div class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-tealGlow group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">🎓</div>
+                            <span class="text-sm font-semibold">Courses</span>
+                        </div>
+                        <div class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-limeGreen group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">🎧</div>
+                            <span class="text-sm font-semibold">Podcasts</span>
+                        </div>
+                        <div class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-electricBlue group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">📄</div>
+                            <span class="text-sm font-semibold">Documents</span>
+                        </div>
+                        <div onclick="router('librarian')" class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-tealGlow group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">🤖</div>
+                            <span class="text-sm font-semibold">AI Librarian</span>
+                        </div>
+                        <div onclick="router('profile')" class="bg-mutedMidnight hover:bg-subtleGray p-4 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all h-32 border border-transparent hover:border-limeGreen group">
+                            <div class="text-3xl group-hover:scale-110 transition-transform">🏆</div>
+                            <span class="text-sm font-semibold">Achievements</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Snapshot (1/3 width) -->
+                <div class="bg-mutedMidnight rounded-2xl p-6 shadow-soft-dark border border-subtleGray flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold mb-1">Weekly Focus</h2>
+                        <p class="text-xs text-gray-400 mb-4">Time distribution by category</p>
+                    </div>
+                    
+                    <div class="chart-container flex items-center justify-center">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between text-xs text-gray-400">
+                        <span>Total: 5h 20m</span>
+                        <span class="text-tealGlow font-bold">↑ 12% vs last week</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leaderboard -->
+            <section class="bg-mutedMidnight rounded-2xl p-6 shadow-soft-dark border border-subtleGray">
+                <h2 class="text-xl font-bold border-l-4 border-limeGreen pl-3 mb-4 flex justify-between items-center">
+                    Top Contributors (Points)
+                    <button onclick="router('profile')" class="text-xs text-electricBlue hover:text-tealGlow uppercase tracking-wider font-semibold">View All</button>
+                </h2>
+                <ul id="leaderboard-list" class="space-y-3">
+                    <!-- Leaderboard data injected by JS -->
+                </ul>
+            </section>
+        </div>
+
+        <!-- VIEW: ANALYTICS -->
+        <div id="view-analytics" class="view-section hidden fade-in space-y-8">
+            <header class="mb-6">
+                <div class="tri-pack-logo mb-2">
+                    <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                    <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-offWhite mb-2">My Learning Analytics</h1>
+                <p class="text-gray-400 text-sm">Data-driven insights to optimize your growth.</p>
+            </header>
+
+            <!-- Key Metric Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-mutedMidnight p-6 rounded-2xl border-t-4 border-electricBlue shadow-soft-dark">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-1">Time Spent (Week)</p>
+                    <div class="text-3xl font-bold text-offWhite">8.5 <span class="text-lg font-normal text-gray-500">hrs</span></div>
+                    <p class="text-tealGlow text-xs mt-2 font-bold">+2.1 hrs vs avg</p>
+                </div>
+                <div class="bg-mutedMidnight p-6 rounded-2xl border-t-4 border-tealGlow shadow-soft-dark">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-1">Modules Completed</p>
+                    <div class="text-3xl font-bold text-offWhite">14</div>
+                    <p class="text-electricBlue text-xs mt-2 font-bold">Top 10% of learners</p>
+                </div>
+                <div class="bg-mutedMidnight p-6 rounded-2xl border-t-4 border-limeGreen shadow-soft-dark">
+                    <p class="text-gray-400 text-xs uppercase tracking-wider mb-1">Peak Hour</p>
+                    <div class="text-3xl font-bold text-offWhite">10:00 <span class="text-lg font-normal text-gray-500">AM</span></div>
+                    <p class="text-gray-400 text-xs mt-2">Tuesday is your best day</p>
+                </div>
+            </div>
+
+            <!-- Main Trend Chart -->
+            <div class="bg-mutedMidnight p-6 rounded-2xl shadow-soft-dark border border-subtleGray">
+                <h3 class="text-lg font-bold mb-6">Learning Streak Intensity</h3>
+                <div class="chart-container">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: COMMUNITY -->
+        <div id="view-community" class="view-section hidden fade-in space-y-6">
+             <header class="mb-6 flex justify-between items-center">
+                <div>
+                    <div class="tri-pack-logo mb-2">
+                        <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                        <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-offWhite mb-2">Community Hub</h1>
+                    <p class="text-gray-400 text-sm">Connect, share, and grow with peers.</p>
+                </div>
+                <button class="bg-electricBlue text-deepGraphite font-bold px-4 py-2 rounded-xl shadow-glow-blue hover:bg-white transition">+ New Post</button>
+            </header>
+
+            <!-- Filter Tabs -->
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <button class="px-4 py-1.5 rounded-full bg-electricBlue text-deepGraphite font-bold text-sm">All</button>
+                <button class="px-4 py-1.5 rounded-full bg-mutedMidnight border border-subtleGray text-gray-400 text-sm hover:text-offWhite">Strategic HR</button>
+                <button class="px-4 py-1.5 rounded-full bg-mutedMidnight border border-subtleGray text-gray-400 text-sm hover:text-offWhite">Leadership</button>
+                <button class="px-4 py-1.5 rounded-full bg-mutedMidnight border border-subtleGray text-gray-400 text-sm hover:text-offWhite">Org Design</button>
+            </div>
+
+            <!-- Mock Post Stream -->
+            <div class="space-y-4">
+                <!-- Post 1 -->
+                <div class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray hover:border-subtleGray/80 transition shadow-soft-dark">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500"></div>
+                            <div>
+                                <p class="text-sm font-bold text-offWhite">Sarah Jenkins</p>
+                                <p class="text-xs text-gray-500">2 hours ago • Strategic HR</p>
+                            </div>
+                        </div>
+                        <span class="text-limeGreen text-xs border border-limeGreen/30 px-2 py-0.5 rounded">Trending</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-offWhite mb-2">Thoughts on the new Remote Work Policy framework?</h3>
+                    <p class="text-gray-300 text-sm mb-4 leading-relaxed">I've been reviewing the module on hybrid workforce management. The section on "outcome-based performance" seems crucial for our Q3 goals. Has anyone applied the 'Trust Triad' model yet?</p>
+                    <div class="flex items-center space-x-6 border-t border-subtleGray pt-3">
+                        <button class="flex items-center space-x-1 text-gray-400 hover:text-electricBlue transition text-sm">
+                            <span>👍</span> <span>24 Likes</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-400 hover:text-tealGlow transition text-sm">
+                            <span>💬</span> <span>8 Comments</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-400 hover:text-offWhite transition text-sm ml-auto">
+                            <span>↗</span> <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                 <div class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray hover:border-subtleGray/80 transition shadow-soft-dark">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-teal-500"></div>
+                            <div>
+                                <p class="text-sm font-bold text-offWhite">Marcus Ray</p>
+                                <p class="text-xs text-gray-500">5 hours ago • Talent Dev</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-offWhite mb-2">Resource Share: Skills Matrix Template</h3>
+                    <p class="text-gray-300 text-sm mb-4 leading-relaxed">Found this great Excel template for mapping team competencies against the new L&D strategy. Uploading it here for the group!</p>
+                    <div class="bg-deepGraphite p-3 rounded-lg border border-subtleGray mb-4 flex items-center space-x-3">
+                        <span class="text-2xl">📊</span>
+                        <div>
+                            <p class="text-sm font-bold text-offWhite">Skills_Matrix_v2.xlsx</p>
+                            <p class="text-xs text-gray-500">12 KB • Spreadsheet</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6 border-t border-subtleGray pt-3">
+                        <button class="flex items-center space-x-1 text-gray-400 hover:text-electricBlue transition text-sm">
+                            <span>👍</span> <span>15 Likes</span>
+                        </button>
+                        <button class="flex items-center space-x-1 text-gray-400 hover:text-tealGlow transition text-sm">
+                            <span>💬</span> <span>3 Comments</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: PLAYER -->
+        <div id="view-player" class="view-section hidden fade-in space-y-6">
+            <header class="mb-6 flex justify-between items-center">
+                <div>
+                    <div class="tri-pack-logo mb-2">
+                        <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                        <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                    </div>
+                    <h1 class="text-3xl font-extrabold text-offWhite mb-2" id="player-title">Agile Methodologies in HR</h1>
+                    <p class="text-gray-400 text-sm">Module 1/5: Enforcing completion for certification compliance.</p>
+                </div>
+                <button onclick="router('dashboard')" class="bg-subtleGray text-offWhite font-bold px-4 py-2 rounded-xl hover:bg-subtleGray/80 transition">Exit Player</button>
+            </header>
+
+            <div class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray shadow-soft-dark">
+                <!-- Simulated Video/Content Player -->
+                <div id="content-screen" class="aspect-video bg-deepGraphite flex items-center justify-center rounded-lg relative overflow-hidden">
+                    <p class="text-2xl text-electricBlue font-bold">Content Playing (Unskippable)</p>
+                    <p class="absolute bottom-4 text-xs text-gray-500">Seeking/Fast-Forward Controls Disabled.</p>
+                </div>
+
+                <!-- Compliance Tracker -->
+                <div class="mt-6">
+                    <div class="flex justify-between items-center text-sm font-bold mb-2">
+                        <span>Compliance Progress (Required)</span>
+                        <span id="player-percent" class="text-tealGlow">0%</span>
+                    </div>
+                    <div class="w-full bg-subtleGray h-2.5 rounded-full overflow-hidden">
+                        <div id="player-progress-bar" class="bg-tealGlow h-full rounded-full transition-all duration-1000 ease-linear" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Social Consumption Tracker -->
+                <div class="mt-6 pt-6 border-t border-subtleGray">
+                    <h3 class="text-lg font-bold mb-3 flex items-center">
+                        Learners Who Consumed This
+                        <span id="consumed-count" class="text-sm font-normal text-gray-500 ml-2">(18 Peers)</span>
+                    </h3>
+                    <div id="consumed-peers" class="flex -space-x-2 overflow-hidden">
+                        <!-- Mock peers rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Mock Notes Sidebar -->
+                <div class="mt-6 pt-6 border-t border-subtleGray">
+                    <h3 class="text-lg font-bold mb-3">Notes & Bookmarks</h3>
+                    <textarea rows="4" placeholder="Your timestamped notes here..." class="w-full p-3 border border-subtleGray rounded-xl bg-deepGraphite text-offWhite placeholder-gray-500 focus:ring-electricBlue focus:border-electricBlue"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- VIEW: PROFILE & ACHIEVEMENTS -->
+        <div id="view-profile" class="view-section hidden fade-in space-y-8 pb-20">
+            <header class="mb-6">
+                <div class="tri-pack-logo mb-2">
+                    <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                    <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-offWhite mb-2">My Profile & Achievements</h1>
+                <p class="text-gray-400 text-sm">Your gamified journey, skills, and strategic impact.</p>
+            </header>
+
+            <!-- Profile Summary & Leveling -->
+            <div class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray shadow-soft-dark">
+                <div class="flex items-center space-x-6 mb-4">
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-electricBlue to-limeGreen p-0.5 flex items-center justify-center">
+                        <div class="w-full h-full rounded-full bg-deepGraphite flex items-center justify-center text-xl font-bold">JD</div>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">Jane Doe <span id="profile-level" class="text-limeGreen text-base font-semibold">Lvl 12</span></p>
+                        <p class="text-md text-tealGlow" id="profile-title">Senior HR Manager</p>
+                        <p class="text-sm text-gray-500" id="profile-points">5,400 Points</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-subtleGray">
+                    <div class="flex justify-between items-center text-sm font-bold mb-2">
+                        <span>Progress to Next Level (Lvl 13)</span>
+                        <span class="text-limeGreen">75%</span>
+                    </div>
+                    <div class="w-full bg-deepGraphite h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-limeGreen h-full rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Map and Certificates -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-mutedMidnight p-6 rounded-2xl border border-subtleGray shadow-soft-dark">
+                    <h3 class="text-xl font-bold mb-4 border-b border-subtleGray pb-2">Skills Map (Competency Visualization)</h3>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="skillsMapChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray shadow-soft-dark">
+                    <h3 class="text-xl font-bold mb-4 border-b border-subtleGray pb-2">Certificates</h3>
+                    <div class="space-y-3">
+                        <div class="bg-deepGraphite p-3 rounded-lg flex items-center justify-between border-l-4 border-electricBlue">
+                            <span class="text-sm font-medium">Strategic HR Cert (2025)</span>
+                            <span class="text-electricBlue">View ↗</span>
+                        </div>
+                        <div class="bg-deepGraphite p-3 rounded-lg flex items-center justify-between border-l-4 border-tealGlow">
+                            <span class="text-sm font-medium">Leadership Foundations</span>
+                            <span class="text-tealGlow">View ↗</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">Completion certificates are stored securely.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badge Gallery -->
+            <section class="bg-mutedMidnight p-6 rounded-2xl border border-subtleGray shadow-soft-dark">
+                <h3 class="text-xl font-bold mb-6 border-b border-subtleGray pb-2">Badge Gallery (10 Achieved)</h3>
+                <div id="badge-gallery" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                    <!-- Badges rendered by JS -->
+                </div>
+            </section>
+            
+            <!-- ADMIN MANAGEMENT PANEL (Visible only if user is admin) -->
+            <section id="admin-panel-profile" class="hidden bg-red-900/40 p-6 rounded-xl shadow-soft-dark mb-8 border border-red-500">
+                <h2 class="text-xl font-bold text-red-400 mb-4 border-b border-red-500/50 pb-2">Admin Points & Badge Creation</h2>
+                <div class="space-y-3">
+                    <p class="text-sm text-red-200">Simulate learner point adjustment (Current Points: 5400)</p>
+                    <div class="flex space-x-3">
+                        <input id="point-adjustment" type="number" placeholder="Points to add (e.g., 500)" class="w-full p-2 rounded-lg bg-deepGraphite border border-subtleGray text-offWhite focus:border-red-400" />
+                        <button onclick="simulatePointAdjustment()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">Adjust Points</button>
+                    </div>
+                    <p class="text-sm text-red-200 pt-2">Simulate new badge creation:</p>
+                    <div class="flex space-x-3">
+                        <input id="new-badge-name" type="text" placeholder="Badge Name (e.g., HRBP Master)" class="w-full p-2 rounded-lg bg-deepGraphite border border-subtleGray text-offWhite focus:border-red-400" />
+                        <button onclick="simulateBadgeCreation()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">Create Badge</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        
+        <!-- VIEW: LIBRARIAN AI -->
+        <div id="view-librarian" class="view-section hidden fade-in space-y-6">
+            <header class="mb-6">
+                <div class="tri-pack-logo mb-2">
+                    <div class="tri-pack-icon w-5 h-5 mr-2 text-xs">TP</div>
+                    <span class="text-xs uppercase tracking-widest text-tealGlow">Tri-Pack</span>
+                </div>
+                <h1 class="text-3xl font-extrabold text-offWhite mb-2">Librarian AI</h1>
+                <p class="text-gray-400 text-sm">Your intelligent guide for book recommendations in strategic HR and leadership.</p>
+            </header>
+
+            <div class="flex flex-col h-[70vh] bg-mutedMidnight rounded-2xl border border-subtleGray shadow-soft-dark">
+                <!-- Chat Log -->
+                <div id="chat-log" class="flex-grow p-4 space-y-4 overflow-y-auto">
+                    <!-- Initial Welcome Message -->
+                    <div class="flex justify-start">
+                        <div class="bg-electricBlue text-deepGraphite p-3 rounded-tr-xl rounded-b-xl max-w-xs md:max-w-md text-sm shadow-md">
+                            <span class="font-bold">Librarian AI:</span> Welcome! I specialize in strategic HR, L&D, and leadership development literature. What topic are you exploring today?
+                        </div>
+                    </div>
+                    <!-- Messages will be appended here -->
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-4 border-t border-subtleGray">
+                    <form id="chat-form" class="flex space-x-3">
+                        <input id="user-input" type="text" placeholder="Ask for a book recommendation..." class="flex-grow p-3 rounded-xl bg-deepGraphite border border-subtleGray text-offWhite placeholder-gray-500 focus:ring-electricBlue focus:border-electricBlue" required />
+                        <button type="submit" id="send-btn" class="bg-tealGlow text-deepGraphite font-bold px-4 py-3 rounded-xl hover:bg-limeGreen transition disabled:opacity-50" disabled>
+                            <span id="send-text">Ask</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV (Mobile Only) -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-mutedMidnight border-t border-subtleGray p-2 flex justify-around z-40 pb-safe">
+            <button onclick="router('dashboard')" class="flex flex-col items-center p-2 text-electricBlue">
+                <span class="text-xl">⊞</span>
+                <span class="text-[10px] mt-1">Home</span>
+            </button>
+             <button onclick="router('analytics')" class="flex flex-col items-center p-2 text-gray-500 hover:text-limeGreen">
+                <span class="text-xl">📈</span>
+                <span class="text-[10px] mt-1">Stats</span>
+            </button>
+             <button onclick="router('community')" class="flex flex-col items-center p-2 text-gray-500 hover:text-tealGlow">
+                <span class="text-xl">💬</span>
+                <span class="text-[10px] mt-1">Comm</span>
+            </button>
+            <button onclick="router('librarian')" class="flex flex-col items-center p-2 text-gray-500 hover:text-limeGreen">
+                <span class="text-xl">🤖</span>
+                <span class="text-[10px] mt-1">AI</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- API CONFIGURATION ---
+        const API_KEY = ""; // Provided by environment
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        
+        // --- ADMIN CONFIGURATION: REPLACE THIS PLACEHOLDER WITH YOUR FULL USER ID
+        const ADMIN_USER_ID = 'YOUR_ADMIN_USER_ID_HERE'; 
+        const CURRENT_USER_ID = 'user-jd-12345'; // Mock User ID for prototyping
+        const IS_ADMIN = CURRENT_USER_ID === ADMIN_USER_ID;
+
+        // --- MOCK DATA ---
+        const USER_PROFILE_DATA = {
+            id: CURRENT_USER_ID,
+            name: 'Jane Doe',
+            title: 'Senior HR Manager',
+            points: 5400,
+            level: 12,
+            skills: {
+                'Strategic HR': 90,
+                'Talent Development': 75,
+                'Org. Design': 80,
+                'Data Analysis': 60,
+                'Change Mgmt': 70
+            }
+        };
+
+        let BADGES_DATA = [
+            { id: 1, name: 'First Post', emoji: '📢', color: 'limeGreen', earned: true },
+            { id: 2, name: 'Course Master', emoji: '🎓', color: 'electricBlue', earned: true },
+            { id: 3, name: '10 Day Streak', emoji: '🔥', color: 'limeGreen', earned: true },
+            { id: 4, name: 'HRBP Foundations', emoji: '💼', color: 'tealGlow', earned: true },
+            { id: 5, name: 'Data Wizard', emoji: '📊', color: 'electricBlue', earned: false },
+            { id: 6, name: 'Community Leader', emoji: '👑', color: 'limeGreen', earned: false },
+            { id: 7, name: 'Podcast Listener', emoji: '🎧', color: 'tealGlow', earned: true },
+            { id: 8, name: 'Innovation Hub', emoji: '💡', color: 'electricBlue', earned: true },
+        ];
+        
+        const LEADERBOARD_DATA = [
+            { name: 'Marcus Ray', points: 6100, rank: 1 },
+            { name: USER_PROFILE_DATA.name, points: USER_PROFILE_DATA.points, rank: 2 }, // Jane Doe
+            { name: 'Sarah Jenkins', points: 4950, rank: 3 },
+            { name: 'Learner-G1R4', points: 4100, rank: 4 },
+        ];
+
+        const CONSUMED_PEERS = [
+            { id: 1, initial: 'SR', color: 'bg-red-500' },
+            { id: 2, initial: 'MG', color: 'bg-purple-500' },
+            { id: 3, initial: 'KL', color: 'bg-yellow-500' },
+            { id: 4, initial: 'AS', color: 'bg-green-500' },
+            { id: 5, initial: 'TM', color: 'bg-pink-500' },
+            { id: 6, initial: 'ZX', color: 'bg-indigo-500' },
+        ];
+
+        const RECOMMENDED_STRIPS = [
+            { 
+                id: 'most-liked', 
+                title: 'Most Liked (Community Favorites)', 
+                color: 'tealGlow',
+                items: [
+                    { title: 'The 5 Essential HR Metrics', type: 'DOC', likes: 45 },
+                    { title: 'Talent Acquisition Secrets', type: 'VIDEO', likes: 32 },
+                    { title: 'Org. Design Trends 2025', type: 'COURSE', likes: 28 },
+                ]
+            },
+            { 
+                id: 'lnd-picks', 
+                title: 'Top Picks by Your L&D Team', 
+                color: 'electricBlue',
+                items: [
+                    { title: 'Strategic HR Frameworks', type: 'VIDEO', likes: 55 },
+                    { title: 'Leadership: Servant vs Transformational', type: 'COURSE', likes: 48 },
+                    { title: 'Driving Change with Data', type: 'PODCAST', likes: 40 },
+                ]
+            },
+            { 
+                id: 'for-you', 
+                title: 'Recommended for You (Based on Consumption)', 
+                color: 'limeGreen',
+                items: [
+                    { title: 'Deep Dive: HR Services Automation', type: 'DOC', likes: 12 },
+                    { title: 'Advanced BP Skills', type: 'COURSE', likes: 22 },
+                    { title: 'Future of Work Trends', type: 'PODCAST', likes: 18 },
+                ]
+            }
+        ];
+
+        // --- STATE & UTILITIES ---
+        let contentPlaybackInterval = null;
+        let contentProgress = 0;
+        let isPlaying = false;
+        let isSendingMessage = false;
+
+        // --- ROUTING LOGIC ---
+        function router(viewName) {
+            clearInterval(contentPlaybackInterval);
+            isPlaying = false;
+            
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('active');
+            });
+            
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+                setTimeout(() => target.classList.add('active'), 10);
+            }
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const target = btn.dataset.target;
+                const icon = btn.querySelector('span:first-child');
+                const targetClasses = {
+                    dashboard: 'text-electricBlue',
+                    analytics: 'text-limeGreen',
+                    community: 'text-tealGlow',
+                    profile: 'text-electricBlue',
+                    librarian: 'text-limeGreen'
+                };
+                
+                const active = target === viewName;
+
+                // Sidebar
+                if (btn.closest('nav') && btn.closest('nav').classList.contains('md:flex')) {
+                    btn.classList.toggle('bg-subtleGray', active);
+                    btn.classList.toggle('text-offWhite', active);
+                    
+                    // Remove all specific active color classes
+                    Object.values(targetClasses).forEach(cls => icon.classList.remove(cls));
+                    
+                    // Add the specific active color class
+                    if (active) {
+                        icon.classList.add(targetClasses[target]);
+                    }
+                }
+                
+                // Bottom Nav (Mobile)
+                const mobileBtn = document.querySelector(`.md\\:hidden .nav-item[data-target="${target}"]`);
+                if (mobileBtn) {
+                    mobileBtn.classList.toggle('text-electricBlue', active);
+                    mobileBtn.classList.toggle('text-gray-500', !active);
+                }
+            });
+
+            // Trigger Chart Render and Logic on view change
+            if (viewName === 'dashboard') initDashboardView();
+            if (viewName === 'analytics') initAnalyticsChart();
+            if (viewName === 'profile') initProfileView();
+            if (viewName === 'librarian') document.getElementById('user-input').focus();
+        }
+
+        // --- SPLASH SCREEN ---
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    router('dashboard');
+                    if (IS_ADMIN) document.getElementById('admin-panel-profile').classList.remove('hidden');
+                }, 700);
+            }, 1200);
+            
+            // Initial render call to ensure mobile nav active state is set
+            router('dashboard');
+            
+            // Attach chat event listener after DOM load
+            document.getElementById('chat-form').addEventListener('submit', handleSendMessage);
+            document.getElementById('user-input').addEventListener('input', updateSendButtonState);
+            updateSendButtonState();
+        });
+
+        // --- AI LIBRARIAN LOGIC ---
+        function updateSendButtonState() {
+            const input = document.getElementById('user-input');
+            const button = document.getElementById('send-btn');
+            button.disabled = isSendingMessage || input.value.trim() === '';
+            document.getElementById('send-text').textContent = isSendingMessage ? 'Thinking...' : 'Ask';
+        }
+
+        function appendMessage(sender, content) {
+            const log = document.getElementById('chat-log');
+            const isUser = sender === 'user';
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            const message = document.createElement('div');
+            message.className = `p-3 max-w-xs md:max-w-md text-sm shadow-md whitespace-pre-wrap ${
+                isUser 
+                ? 'bg-tealGlow text-deepGraphite rounded-tl-xl rounded-b-xl' 
+                : 'bg-subtleGray text-offWhite rounded-tr-xl rounded-bl-xl'
+            }`;
+            message.innerHTML = isUser ? content : `<span class="font-bold">Librarian AI:</span> ${content}`;
+            
+            wrapper.appendChild(message);
+            log.appendChild(wrapper);
+            
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function handleSendMessage(event) {
+            event.preventDefault();
+            if (isSendingMessage) return;
+
+            const input = document.getElementById('user-input');
+            const userPrompt = input.value.trim();
+            if (!userPrompt) return;
+
+            // 1. Display user message
+            appendMessage('user', userPrompt);
+            input.value = '';
+            
+            isSendingMessage = true;
+            updateSendButtonState();
+
+            try {
+                // 2. Prepare API call
+                const systemPrompt = "You are the Tri-Pack Learner's Hub Librarian AI. You are an expert in strategic HR, L&D, leadership development, and organizational development literature. Your sole purpose is to provide concise, professional book recommendations (Title, Author, a 1-2 sentence summary, and why it is relevant to the user's strategic goals).";
+                
+                const payload = {
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                };
+
+                // 3. Simulated API Call with Exponential Backoff
+                const maxRetries = 3;
+                let response = null;
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        response = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) break;
+
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error; 
+                        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                    }
+                }
+                
+                if (!response.ok) throw new Error(`API returned status ${response.status}`);
+                
+                const result = await response.json();
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't find a recommendation for that topic.";
+                
+                // 4. Display AI response
+                appendMessage('ai', aiText);
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                appendMessage('ai', "I apologize, the connection to the knowledge network failed. Please try again.");
+            } finally {
+                isSendingMessage = false;
+                updateSendButtonState();
+            }
+        }
+
+        // --- PLAYER LOGIC (Compliance Focused) ---
+        function startContentPlayback(contentId) {
+            contentProgress = 0;
+            const titleElement = document.getElementById('player-title');
+            titleElement.textContent = contentId.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+
+            router('player');
+            initPlayerView();
+            
+            const progressBar = document.getElementById('player-progress-bar');
+            const percentDisplay = document.getElementById('player-percent');
+            
+            clearInterval(contentPlaybackInterval);
+            isPlaying = true;
+
+            contentPlaybackInterval = setInterval(() => {
+                if (contentProgress < 100) {
+                    // Critical: Simulated fixed rate to enforce completion (no skipping)
+                    contentProgress += 1; 
+                    progressBar.style.width = `${contentProgress}%`;
+                    percentDisplay.textContent = `${contentProgress}%`;
+                } else {
+                    clearInterval(contentPlaybackInterval);
+                    isPlaying = false;
+                    percentDisplay.textContent = '100% - COMPLETE';
+                    progressBar.classList.add('bg-limeGreen');
+                    alert('Content successfully completed and tracked for compliance!');
+                }
+            }, 50); // 5 seconds total playback simulation (50ms * 100 steps)
+        }
+        
+        function initPlayerView() {
+            // Render social consumption peers
+            const peerContainer = document.getElementById('consumed-peers');
+            peerContainer.innerHTML = '';
+            
+            CONSUMED_PEERS.forEach(peer => {
+                const peerEl = document.createElement('div');
+                peerEl.className = `${peer.color} w-8 h-8 rounded-full text-xs font-bold text-deepGraphite flex items-center justify-center border-2 border-mutedMidnight`;
+                peerEl.textContent = peer.initial;
+                peerContainer.appendChild(peerEl);
+            });
+        }
+
+        // --- ADMIN SIMULATIONS ---
+        function simulatePointAdjustment() {
+            if (!IS_ADMIN) return;
+            const input = document.getElementById('point-adjustment');
+            const points = parseInt(input.value);
+            if (!isNaN(points) && points > 0) {
+                USER_PROFILE_DATA.points += points;
+                document.getElementById('profile-points').textContent = `${USER_PROFILE_DATA.points.toLocaleString()} Points`;
+                input.value = '';
+                alert(`SUCCESS: Added ${points} points. New total: ${USER_PROFILE_DATA.points}`);
+                router('profile'); // Rerender
+            }
+        }
+
+        function simulateBadgeCreation() {
+            if (!IS_ADMIN) return;
+            const input = document.getElementById('new-badge-name');
+            const name = input.value.trim();
+            if (name) {
+                const newBadge = {
+                    id: BADGES_DATA.length + 1,
+                    name: name,
+                    emoji: '🌟',
+                    color: 'limeGreen',
+                    earned: true 
+                };
+                BADGES_DATA.push(newBadge);
+                input.value = '';
+                alert(`SUCCESS: Badge '${name}' created and awarded.`);
+                router('profile'); // Rerender
+            }
+        }
+
+        // --- PROFILE VIEW LOGIC ---
+        let skillsMapChartInstance = null;
+        
+        function initProfileView() {
+            // Update summary data
+            document.getElementById('profile-level').textContent = `Lvl ${USER_PROFILE_DATA.level}`;
+            document.getElementById('profile-points').textContent = `${USER_PROFILE_DATA.points.toLocaleString()} Points`;
+            
+            // Render Badges
+            const badgeGallery = document.getElementById('badge-gallery');
+            badgeGallery.innerHTML = '';
+
+            BADGES_DATA.forEach(badge => {
+                const colorClass = badge.earned ? `bg-${badge.color}` : 'bg-subtleGray opacity-40';
+                const textColor = badge.earned ? 'text-deepGraphite' : 'text-offWhite';
+                
+                const badgeElement = document.createElement('div');
+                badgeElement.className = 'flex flex-col items-center space-y-2 group cursor-default';
+                badgeElement.innerHTML = `
+                    <div class="w-16 h-16 rounded-xl ${colorClass} ${textColor} flex items-center justify-center text-3xl font-bold border-2 border-deepGraphite shadow-lg group-hover:scale-110 transition-transform">
+                        ${badge.emoji}
+                    </div>
+                    <p class="text-xs font-medium text-center text-gray-400 group-hover:text-offWhite">${badge.name}</p>
+                `;
+                badgeGallery.appendChild(badgeElement);
+            });
+
+            // Render Skills Map Chart
+            initSkillsMapChart();
+        }
+
+        function initSkillsMapChart() {
+            const ctx = document.getElementById('skillsMapChart');
+            if (!ctx) return;
+
+            if (skillsMapChartInstance) skillsMapChartInstance.destroy();
+
+            const skills = USER_PROFILE_DATA.skills;
+            const labels = Object.keys(skills);
+            const data = Object.values(skills);
+
+            skillsMapChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'My Competency Score (%)',
+                            data: data,
+                            backgroundColor: 'rgba(0, 204, 153, 0.2)', // Teal Glow
+                            borderColor: '#00CC99',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#B3FF00', // Lime Green
+                            pointBorderColor: '#121217',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#B3FF00'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#4A4E5A' },
+                            grid: { color: '#4A4E5A' },
+                            pointLabels: { color: '#EAEAEA', font: { size: 12 } },
+                            min: 0,
+                            max: 100,
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- DASHBOARD VIEW LOGIC ---
+        let dashboardChartInstance = null;
+        function initDashboardView() {
+            
+            // 1. Render Recommendation Strips
+            const stripContainer = document.getElementById('recommendation-strips');
+            stripContainer.innerHTML = RECOMMENDED_STRIPS.map(strip => {
+                const itemsHtml = strip.items.map(item => `
+                    <div onclick="startContentPlayback('${item.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}')" class="min-w-[200px] bg-mutedMidnight p-4 rounded-xl border border-subtleGray hover:border-${strip.color} transition-colors cursor-pointer group snap-center">
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${strip.color === 'electricBlue' ? 'bg-electricBlue/20 text-electricBlue' : strip.color === 'tealGlow' ? 'bg-tealGlow/20 text-tealGlow' : 'bg-limeGreen/20 text-limeGreen'}">${item.type}</span>
+                        <h4 class="text-sm font-bold mt-2 mb-1 group-hover:text-offWhite">${item.title}</h4>
+                        <div class="flex items-center text-xs text-gray-400">
+                            <span class="mr-2">👍 ${item.likes}</span>
+                            <span class="text-${strip.color}">Learn More ↗</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                return `
+                    <section>
+                        <h2 class="text-xl font-bold border-l-4 border-${strip.color} pl-3 mb-4">${strip.title}</h2>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 snap-x">
+                            ${itemsHtml}
+                        </div>
+                    </section>
+                `;
+            }).join('');
+            
+            // 2. Render Doughnut Chart
+            const ctx = document.getElementById('dashboardChart');
+            if (!ctx) return;
+            
+            if (dashboardChartInstance) dashboardChartInstance.destroy();
+
+            dashboardChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Video', 'Courses', 'Reading', 'Audio'],
+                    datasets: [{
+                        data: [45, 25, 20, 10],
+                        backgroundColor: ['#00BCD4', '#00CC99', '#B3FF00', '#4A4E5A'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#EAEAEA', font: { family: 'Inter', size: 10 } }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+            
+            // 3. Update Leaderboard based on Points
+            const leaderboardHtml = LEADERBOARD_DATA.slice(0, 3).map((user, index) => `
+                <li key=${user.name} class="text-sm text-offWhite flex justify-between items-center">
+                    <span class="font-medium truncate opacity-90">${index + 1}. ${user.name}</span>
+                    <span class="font-bold text-limeGreen text-sm">${user.points.toLocaleString()} pts</span>
+                </li>
+            `).join('');
+            document.getElementById('leaderboard-list').innerHTML = leaderboardHtml;
+        }
+
+        // 4. Analytics Line Chart
+        let analyticsChartInstance = null;
+        function initAnalyticsChart() {
+            const ctx = document.getElementById('analyticsChart');
+            if (!ctx) return;
+
+            if (analyticsChartInstance) analyticsChartInstance.destroy();
+
+            analyticsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Minutes Learned',
+                        data: [30, 45, 60, 25, 90, 40, 20],
+                        borderColor: '#00BCD4',
+                        backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#121217',
+                        pointBorderColor: '#00CC99',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1F2430',
+                            titleColor: '#00CC99',
+                            bodyColor: '#EAEAEA',
+                            borderColor: '#4A4E5A',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: '#4A4E5A', tickLength: 0 },
+                            ticks: { color: '#9CA3AF' },
+                            beginAtZero: true
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
